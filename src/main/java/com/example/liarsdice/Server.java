@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Server {
-    private static int numberOfPlayers = 0;
 
     public static void main(String[] args) {
         try {
@@ -17,18 +16,10 @@ public class Server {
             while (true) {
 
                 Socket player1 = server.accept();
-                //DataOutputStream player1Out = new DataOutputStream(player1.getOutputStream());
                 System.out.println("Player 1 Connected");
-                //player1Out.writeChars("Player 1");
-                //player1Out.close();
-                numberOfPlayers++;
 
                 Socket player2 = server.accept();
-                //DataOutputStream player2Out = new DataOutputStream(player2.getOutputStream());
                 System.out.println("Player 2 Connected");
-                //player2Out.writeChars("Player 2");
-                //player2Out.close();
-                numberOfPlayers++;
 
                 new Thread(new RunGame(player1, player2)).start();
             }
@@ -43,24 +34,23 @@ public class Server {
 class RunGame implements Runnable {
     private Socket p1;
     private Socket p2;
-
-    //default is 2 players
-    private int numOfPlayers = 2;
-
     private DataOutputStream p1Out;
     private DataInputStream p1In;
 
     private DataOutputStream p2Out;
     private DataInputStream p2In;
 
+    //holds all hands of dice
     private ArrayList<ArrayList<Dice>> Hands = new ArrayList<>();
 
+    //holds the number of dice in each players hand, 5 is defualt
     int player1HandSize = 5;
     int player2HandSize = 5;
 
     //-1 to accuse 0 to guess face 1 to guess num
     private int choice;
 
+    //default face and num is 1
     private int currentFace = 1;
     private int currentNum = 1;
 
@@ -70,15 +60,17 @@ class RunGame implements Runnable {
 
     private int turn = 0;
 
+    //creates a new game
     public RunGame(Socket p1, Socket p2) {
         this.p1 = p1;
         this.p2 = p2;
-        numOfPlayers = 2;
     }
 
+    //starts a new thread
     @Override
     public void run() {
         try {
+            //starts game once both players join
             System.out.println("Game Starting");
             p1Out = new DataOutputStream(p1.getOutputStream());
             p1In = new DataInputStream(p1.getInputStream());
@@ -87,16 +79,20 @@ class RunGame implements Runnable {
             p2In = new DataInputStream(p2.getInputStream());
             System.out.println("Created p2 in and out");
 
+            //tells players which player they are
             p1Out.writeInt(1);
             p2Out.writeInt(2);
 
-            //keeps game playing
+            //keeps game playing until one persons hand is 0
             while (player1HandSize > 0 || player2HandSize > 0) {
+                //clears hands and rolls new dice
                 hand = true;
                 Hands.clear();
                 rollDice();
                 do {
+                    //plays a turn
                     turn();
+                    //checks if a new hand is needed
                     if (hand == false) {
                         round++;
                         //tells players current round is over
@@ -111,6 +107,10 @@ class RunGame implements Runnable {
                 } while (hand);
 
             }
+            if(player2HandSize == 0)
+                System.out.println("Player 1 wins");
+            else
+                System.out.println("Player 2 wins");
 
         } catch (IOException ex) {
 
@@ -119,6 +119,7 @@ class RunGame implements Runnable {
 
     private void turn() {
         try {
+            //tells players current face and num
             p1Out.writeInt(currentFace);
             p1Out.writeInt(currentNum);
 
@@ -127,6 +128,7 @@ class RunGame implements Runnable {
 
             System.out.println("Turn " + turn);
 
+            //checks who turn it is
             if (turn % 2 == 0) {
                 //tells p1 it's their turn and p2 it isn't
                 p1Out.writeBoolean(true);
@@ -176,6 +178,7 @@ class RunGame implements Runnable {
         }
     }
 
+    //checks accusation to see who wins the accusation
     private void accuse() {
         int count = 0;
         for (Dice dice : Hands.get(0)) {
@@ -208,6 +211,7 @@ class RunGame implements Runnable {
         }
     }
 
+    //sends the dice to the players
     private void sendDice() {
         try {
             p1Out.writeInt(Hands.get(0).size());
@@ -230,7 +234,7 @@ class RunGame implements Runnable {
             System.out.println("Failed to send dice");
         }
     }
-
+    //rolls new dice for each hand
     private void rollDice() {
         Hands.add(new ArrayList<Dice>());
         for (int i = 0; i < player1HandSize; i++) {

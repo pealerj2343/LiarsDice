@@ -9,6 +9,7 @@ public class Dice {
         roll();
     }
 
+    //rolls a new dice
     public void roll() {
         Random random = new Random();
         number = (int) ((random.nextInt(6)) + 1);
