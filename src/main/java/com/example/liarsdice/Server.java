@@ -54,8 +54,6 @@ class RunGame implements Runnable {
     private int currentFace = 1;
     private int currentNum = 1;
 
-    private int round = 0;
-
     private boolean hand = true;
 
     private int turn = 0;
@@ -94,7 +92,6 @@ class RunGame implements Runnable {
                     turn();
                     //checks if a new hand is needed
                     if (hand == false) {
-                        round++;
                         //tells players current round is over
                         p1Out.writeBoolean(false);
                         p2Out.writeBoolean(false);
