@@ -44,7 +44,6 @@ class playGame {
             while (true) {
                 //fills hand with dice from server
                 fillHand();
-
                 boolean newRound = true;
 
                 do {
@@ -72,7 +71,7 @@ class playGame {
 
     public void playTurn() {
         try {
-            System.out.println("Please enter in -1 to accuse 0 to guess face 1 to guess num");
+            System.out.println("Please enter in -1 to accuse, 0 to guess face, 1 to guess num");
             //gets guess option
             int guess = input.nextInt();
             out.writeInt(guess);

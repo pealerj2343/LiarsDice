@@ -87,6 +87,8 @@ class RunGame implements Runnable {
                 hand = true;
                 Hands.clear();
                 rollDice();
+                currentNum = 0;
+                currentFace = 0;
                 do {
                     //plays a turn
                     turn();
